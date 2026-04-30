@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0f0e0c;
+    color: #f5f1eb;
+    min-height: 100vh;
+  }
+  h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-lanka-500 hover:bg-lanka-600 text-white font-medium px-6 py-3 rounded-xl
+           transition-all duration-200 active:scale-95 shadow-lg shadow-lanka-900/30;
+  }
+  .btn-ghost {
+    @apply border border-white/20 hover:border-white/40 hover:bg-white/5 text-white/80
+           font-medium px-5 py-2.5 rounded-xl transition-all duration-200;
+  }
+  .card-dark {
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
+  }
+  .card-glass {
+    @apply bg-white/8 border border-white/15 rounded-2xl backdrop-blur-md
+           shadow-xl shadow-black/20;
+  }
+  .input-dark {
+    @apply bg-white/[8%] border border-white/[15%] rounded-xl px-4 py-3 text-white placeholder-white/30
+           focus:outline-none focus:border-lanka-400/60 focus:ring-2 focus:ring-lanka-400/20
+           transition-all duration-200 w-full;
+  }
+  .tag-orange {
+    @apply bg-lanka-500/20 text-lanka-200 border border-lanka-500/30 
+           text-xs font-medium px-3 py-1 rounded-full;
+  }
+  .tag-blue {
+    @apply bg-ocean-500/20 text-ocean-100 border border-ocean-500/30
+           text-xs font-medium px-3 py-1 rounded-full;
+  }
+  .tag-green {
+    @apply bg-forest-500/20 text-forest-200 border border-forest-500/30
+           text-xs font-medium px-3 py-1 rounded-full;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* Number step input */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Page transitions */
+.page-enter { animation: fadeIn 0.4s ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Dotted background pattern */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Glow effect */
+.glow-orange {
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.15);
+}
