@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://travel-api-srilanka-e6azatbsh0cna2bg.southeastasia-01.azurewebsites.net/api',
   timeout: 15000
 })
 
