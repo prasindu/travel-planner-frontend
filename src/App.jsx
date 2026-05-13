@@ -10,6 +10,7 @@ import TripActivePage from './pages/TripActivePage'
 import SaveTripModal from './components/SaveTripModal'
 import ProfilePage from './pages/ProfilePage' 
 import { LanguageProvider } from './context/LanguageContext' 
+import AIChatWidget from './components/AIChatWidget'
 
 export default function App() {
   // ── Auth State ─────────────────────────────────────────────
@@ -193,6 +194,9 @@ export default function App() {
   return (
     <LanguageProvider>
       {currentView}
+      
+      {}
+      {view !== 'login' && <AIChatWidget />}
     </LanguageProvider>
   )
 }

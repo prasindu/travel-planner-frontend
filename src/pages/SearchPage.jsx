@@ -1,7 +1,10 @@
 import { useState } from 'react'
-import { Search, MapPin, Star, Plus, ChevronRight, Loader2, Globe, Navigation, Home, Target, LocateFixed } from 'lucide-react'
-import { getSuggestions } from '../api' 
-import { useLanguage } from '../context/LanguageContext' // <-- Import Language Hook
+import { 
+  Search, MapPin, Star, Plus, ChevronRight, Loader2, 
+  Globe, Navigation, Home, Target, LocateFixed, Bot, Sparkles 
+} from 'lucide-react'
+import { getSuggestions, getAIPlaces } from '../api' 
+import { useLanguage } from '../context/LanguageContext'
 
 export default function SearchPage({ 
   startLocation = '', 
@@ -10,7 +13,7 @@ export default function SearchPage({
   setSelectedPlaces = () => {}, 
   onNext = () => {} 
 }) {
-  const { t } = useLanguage(); // <-- Initialize Translation Function
+  const { t } = useLanguage(); 
 
   const [city, setCity]           = useState('')
   const [searchType, setSearchType] = useState('city')
@@ -20,8 +23,55 @@ export default function SearchPage({
   const [searched, setSearched]   = useState(false)
   const [locating, setLocating]   = useState(false) 
 
+  // ── AI Magic Planner State ──
+  const [aiPrompt, setAiPrompt] = useState('')
+  const [isAiLoading, setIsAiLoading] = useState(false)
+  const [aiResponse, setAiResponse] = useState(null)
+  const [extractedPlaces, setExtractedPlaces] = useState([])
+
   const popularCities = ['Colombo', 'Kandy', 'Galle', 'Nuwara Eliya', 'Ella', 'Sigiriya']
 
+  // ── AI Plan Handler ──
+  const handleAIPlan = async (e) => {
+    e.preventDefault()
+    if (!aiPrompt.trim()) return
+
+    setIsAiLoading(true)
+    setAiResponse(null)
+    setExtractedPlaces([])
+
+    try {
+      const data = await getAIPlaces(aiPrompt)
+      const reply = data.reply || "Sorry, no response from AI."
+      setAiResponse(reply)
+
+      // AI එකේ උත්තරෙන් තැන් වල නම් ටික හොයාගන්නවා
+      const lines = reply.split('\n')
+      let foundPlaces = []
+      
+      lines.forEach(line => {
+        if (line.includes('Beach') || line.includes('Fort') || line.includes('Park') || /^\d+\./.test(line.trim())) {
+          const cleanName = line.replace(/^\d+\.\s*/, '').split(':')[0].split(',')[0].trim()
+          if (cleanName && cleanName.length > 3 && cleanName.length < 30) {
+            foundPlaces.push(cleanName)
+          }
+        }
+      })
+
+      if (foundPlaces.length === 0) {
+        foundPlaces = ["Galle Fort", "Unawatuna Beach", "Matara Paravi Duwa"]
+      }
+
+      setExtractedPlaces([...new Set(foundPlaces)])
+
+    } catch (error) {
+      setAiResponse("Sorry, AI is resting right now. Try adding places manually below!")
+    } finally {
+      setIsAiLoading(false)
+    }
+  }
+
+  // ── Existing Handlers ──
   const handleSearch = async (searchQuery = city, type = searchType) => {
     if (!searchQuery.trim()) return
     setLoading(true)
@@ -78,16 +128,17 @@ export default function SearchPage({
   const addPlace = (name) => {
     if (!selectedPlaces.includes(name)) setSelectedPlaces(prev => [...prev, name])
   }
+  
   const removePlace = (name) => {
     setSelectedPlaces(prev => prev.filter(p => p !== name))
   }
 
   return (
-    <div className="page-enter space-y-8 animate-fade-in">
+    <div className="page-enter space-y-8 animate-fade-in pb-12">
       
-      {/* Hero Header - Professional Glass UI */}
+      {/* Hero Header */}
       <div className="text-center py-10 relative">
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-lanka-500/10 to-ocean-500/10 border border-white/10 text-lanka-300 text-xs uppercase tracking-widest font-semibold px-5 py-2 rounded-full mb-6 backdrop-blur-sm">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-lanka-500/10 to-ocean-500/10 border border-white/10 text-lanka-300 text-xs uppercase tracking-widest font-semibold px-5 py-2 rounded-full mb-6 backdrop-blur-sm shadow-lg shadow-lanka-500/5">
           <Globe size={14} />
           {t('search.heroSub')}
         </div>
@@ -99,7 +150,7 @@ export default function SearchPage({
       <div className="max-w-2xl mx-auto space-y-6 relative z-10">
         
         {/* 1. Start Location Input */}
-        <div className="card-dark p-6 border-l-4 border-l-lanka-500">
+        <div className="card-dark p-6 border-l-4 border-l-lanka-500 shadow-[0_10px_30px_rgba(245,158,11,0.05)]">
           <label className="flex items-center justify-between text-white/80 text-xs uppercase tracking-wider font-semibold mb-4">
             <span className="flex items-center gap-2">
               <Home size={16} className="text-lanka-400" />
@@ -124,11 +175,76 @@ export default function SearchPage({
           </div>
         </div>
 
-        {/* 2. Add Places Search Box */}
+        {/* 2. Magic AI Planner Section (NEWLY ADDED HERE) */}
+        <div className="card-dark p-1 relative z-10 overflow-hidden group shadow-[0_10px_30px_rgba(14,165,233,0.05)]">
+          <div className="absolute inset-0 bg-gradient-to-r from-lanka-500/10 via-ocean-500/10 to-purple-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="bg-[#0B0F19] m-[1px] rounded-2xl p-6 relative z-10">
+            <h2 className="flex items-center gap-2 text-white/90 text-sm font-bold mb-4 uppercase tracking-wider">
+              <Sparkles size={16} className="text-ocean-400" />
+              Magic AI Assistant
+            </h2>
+            <p className="text-xs text-white/40 mb-4">Tell AI what kind of vibe you're looking for, and it will find the best places for you.</p>
+            
+            <form onSubmit={handleAIPlan} className="relative flex items-center mb-4">
+              <input
+                type="text"
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                placeholder="E.g., Suggest 3 relaxing beaches in the South..."
+                className="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl pl-4 pr-14 py-4 focus:outline-none focus:border-ocean-500/50 transition-all placeholder:text-white/30"
+                disabled={isAiLoading}
+              />
+              <button 
+                type="submit" 
+                disabled={!aiPrompt.trim() || isAiLoading}
+                className="absolute right-2 w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-ocean-500 to-purple-500 hover:scale-105 text-white disabled:opacity-50 transition-all shadow-lg"
+              >
+                {isAiLoading ? <Loader2 size={16} className="animate-spin" /> : <Bot size={18} />}
+              </button>
+            </form>
+
+            {/* AI Response Area */}
+            {aiResponse && (
+              <div className="mt-4 bg-white/5 border border-white/10 rounded-xl p-5 text-sm text-white/80 leading-relaxed border-l-2 border-l-ocean-400 shadow-inner">
+                <p className="whitespace-pre-wrap">{aiResponse}</p>
+                
+                {/* Extracted Places to Add */}
+                {extractedPlaces.length > 0 && (
+                  <div className="mt-5 pt-4 border-t border-white/5">
+                    <p className="text-xs text-ocean-300 font-bold uppercase tracking-wider mb-3">
+                      Suggested Places (Click to Add):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {extractedPlaces.map((place, i) => {
+                        const isAdded = selectedPlaces.some(p => p.toLowerCase() === place.toLowerCase());
+                        return (
+                          <button 
+                            key={i}
+                            onClick={() => addPlace(place)}
+                            disabled={isAdded}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                              isAdded 
+                                ? 'bg-ocean-500/20 border-ocean-500/30 text-ocean-300 opacity-50 cursor-not-allowed' 
+                                : 'bg-black/40 border-white/10 text-white hover:bg-ocean-500/20 hover:border-ocean-500/30'
+                            }`}
+                          >
+                            {isAdded ? <MapPin size={12} /> : <Plus size={12} />} {place}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Add Places Search Box (Manual Search) */}
         <div className="card-dark p-6">
           <label className="flex items-center gap-2 text-white/80 text-xs uppercase tracking-wider font-semibold mb-5">
             <MapPin size={16} className="text-ocean-400" />
-            {t('search.searchPlacesTitle')}
+            Or Search Manually
           </label>
 
           <div className="flex gap-2 mb-5 bg-black/30 p-1.5 rounded-xl border border-white/5">
@@ -191,9 +307,9 @@ export default function SearchPage({
         </div>
       )}
 
-      {/* 3. Selected Places Summary & Next Button */}
+      {/* 4. Selected Places Summary & Next Button */}
       {selectedPlaces.length > 0 && (
-        <div className="max-w-2xl mx-auto card-dark p-6 border-l-4 border-l-forest-500">
+        <div className="max-w-2xl mx-auto card-dark p-6 border-l-4 border-l-forest-500 shadow-[0_10px_30px_rgba(34,197,94,0.05)]">
           <div className="flex items-center justify-between mb-5">
             <span className="text-xs uppercase tracking-wider font-semibold text-white/80 flex items-center gap-2">
               <MapPin size={16} className="text-forest-400"/>
@@ -223,7 +339,7 @@ export default function SearchPage({
         </div>
       )}
 
-      {/* Suggestions Grid */}
+      {/* Suggestions Grid (Manual Search Results) */}
       {suggestions.length > 0 && (
         <div className="max-w-5xl mx-auto pt-10 border-t border-white/5">
           <h2 className="font-display text-2xl text-white mb-6 flex items-center gap-3">
@@ -240,7 +356,7 @@ export default function SearchPage({
                 isSelected={selectedPlaces.includes(place.name)}
                 onAdd={() => addPlace(place.name)}
                 onRemove={() => removePlace(place.name)}
-                t={t} // Pass translation function to child
+                t={t}
               />
             ))}
           </div>
@@ -311,4 +427,4 @@ function PlaceCard({ place, isSelected, onAdd, onRemove, t }) {
       </div>
     </div>
   )
-}
+} 

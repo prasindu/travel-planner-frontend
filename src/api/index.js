@@ -99,3 +99,10 @@ export const healthCheck = async () => {
   const res = await api.get('/health')
   return res.data
 }
+
+// api.js එකේ අන්තිමට
+export const getAIPlaces = async (prompt) => {
+  // මෙතන baseURL එක පාවිච්චි නොකර කෙළින්ම ඔයාගේ node server එකට කතා කරමු
+  const res = await axios.post('https://travel-api-srilanka-e6azatbsh0cna2bg.southeastasia-01.azurewebsites.net/api/chat', { prompt, history: [] });
+  return res.data;
+}
