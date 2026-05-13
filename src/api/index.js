@@ -30,6 +30,11 @@ export const getMe = async () => {
   return res.data
 }
 
+export const changePassword = async (currentPassword, newPassword) => {
+  const res = await api.put('/auth/password', { currentPassword, newPassword })
+  return res.data
+}
+
 // ══════════════════════════════════════════════════════════════
 // TRIPS
 // ══════════════════════════════════════════════════════════════

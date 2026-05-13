@@ -1,10 +1,9 @@
-import { MapPin, Navigation, LayoutDashboard, LogOut, Globe } from 'lucide-react'
+import { MapPin, Navigation, LayoutDashboard, LogOut, Globe, User } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
-export default function Navbar({ currentStep, user, onDashboard, onLogout }) {
+export default function Navbar({ currentStep, user, onDashboard, onProfile, onLogout }) { 
   const { t, toggleLanguage } = useLanguage();
-  
-  // භාෂාවට අනුව steps වල නම් ලබාගැනීම
+
   const steps = [
     t('nav.steps.search'), 
     t('nav.steps.plan'), 
@@ -58,7 +57,7 @@ export default function Navbar({ currentStep, user, onDashboard, onLogout }) {
           ))}
         </div>
 
-        {/* Right: user + lang toggle + dashboard + logout */}
+        {/* Right: user + lang toggle + dashboard + profile + logout */}
         <div className="flex items-center gap-3">
           
           <button 
@@ -77,9 +76,16 @@ export default function Navbar({ currentStep, user, onDashboard, onLogout }) {
               >
                 <LayoutDashboard size={14} /> {t('nav.dashboard')}
               </button>
-              <div className="w-8 h-8 rounded-full bg-lanka-500/30 border border-lanka-500/40 flex items-center justify-center text-lanka-300 text-xs font-bold">
+
+              {/* --- Profile Button (Clickable Avatar) --- */}
+              <button
+                onClick={onProfile}
+                title="Profile & Settings"
+                className="w-8 h-8 rounded-full bg-lanka-500/30 border border-lanka-500/40 flex items-center justify-center text-lanka-300 text-xs font-bold hover:bg-lanka-500/50 hover:text-white hover:shadow-[0_0_10px_rgba(245,158,11,0.3)] transition-all cursor-pointer"
+              >
                 {user.name?.charAt(0).toUpperCase()}
-              </div>
+              </button>
+              
               <button
                 onClick={onLogout}
                 className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"

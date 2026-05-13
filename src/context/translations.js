@@ -132,7 +132,37 @@ export const translations = {
   cancel: "Cancel",
   saving: "Saving...",
   saveBtn: "Save Trip"
-},    
+},  
+
+itinerary: {
+      title1: "Your",
+      title2: "Itinerary",
+      subtitle: "Step-by-step travel guide",
+      loadingTitle: "Generating Itinerary...",
+      loadingSub: "Finding the best routes for you",
+      busRoutes: "Bus Routes",
+      trainSchedules: "Train Schedules",
+      driving: "Driving",
+      error: "Failed to generate itinerary. Please try again.",
+      totalStops: "Total Stops",
+      segments: "Segments",
+      startTime: "Start Time",
+      readyTitle: "You're all set!",
+      saveBtn: "Save Trip",
+      segment: "Segment",
+      notAvailable: "Not available",
+      hideDetails: "Hide Details",
+      showDetails: "Show Details",
+      stops: "stops"
+},
+profile: {
+      title: "Profile & Settings",
+      langTitle: "App Language",
+      selectLang: "Select Language",
+      securityTitle: "Security",
+      changePw: "Change Password",
+      updatePwBtn: "Update Password"
+    },
     common: {
       back: "Back",
       retry: "Retry",
@@ -276,6 +306,35 @@ export const translations = {
   saving: "සුරකිමින්...",
   saveBtn: "Trip Save කරන්න"
 },  
+itinerary: {
+      title1: "ඔබේ",
+      title2: "ගමන් විස්තරය",
+      subtitle: "පියවරෙන් පියවර මාර්ගෝපදේශය",
+      loadingTitle: "ගමන් විස්තරය සකසමින්...",
+      loadingSub: "හොඳම මාර්ග සොයමින් පවතී...",
+      busRoutes: "බස් මාර්ග",
+      trainSchedules: "දුම්රිය කාලසටහන්",
+      driving: "වාහන ගමන්",
+      error: "ගමන් විස්තරය ලබාගැනීමට නොහැකි විය. නැවත උත්සාහ කරන්න.",
+      totalStops: "නැවතුම් ගණන",
+      segments: "කොටස්",
+      startTime: "ආරම්භක වේලාව",
+      readyTitle: "සියල්ල සූදානම්!",
+      saveBtn: "ගමන Save කරන්න",
+      segment: "කොටස",
+      notAvailable: "ලබා ගත නොහැක",
+      hideDetails: "විස්තර සඟවන්න",
+      showDetails: "විස්තර පෙන්වන්න",
+      stops: "නැවතුම්"
+    },
+    profile: {
+      title: "ගිණුම සහ සැකසුම්",
+      langTitle: "යෙදුමේ භාෂාව",
+      selectLang: "භාෂාව තෝරන්න",
+      securityTitle: "ආරක්ෂාව",
+      changePw: "මුරපදය වෙනස් කරන්න",
+      updatePwBtn: "මුරපදය යාවත්කාලීන කරන්න"
+    },
     common: {
       back: "ආපසු",
       retry: "නැවත උත්සහ කරන්න",

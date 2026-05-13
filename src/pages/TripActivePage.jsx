@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   MapPin, ChevronRight, ChevronLeft, Navigation, Check,
   AlertTriangle, RefreshCw, Loader2, Map, List,
+  Bus, Train, Car // <-- New Icons imported
 } from 'lucide-react'
-import { updateTripStatus } from '../api'
-import { useLanguage } from '../context/LanguageContext' // <-- Import Language Hook
+import { updateTripStatus, getItinerary, getWeather } from '../api' // <-- Added getItinerary & getWeather
+import { useLanguage } from '../context/LanguageContext'
 
 // ── Weather helpers ───────────────────────────────────────────
 const getWeatherIcon = (condition) => {
@@ -15,7 +16,7 @@ const getWeatherIcon = (condition) => {
 // ── Google Maps URL builder ───────────────────────────────────
 const buildMapsUrl = (places, currentIdx) => {
   if (!places || places.length < 2) return null
-  const origin = encodeURIComponent(places[currentIdx] + ', Sri Lanka') // Current stop as origin
+  const origin = encodeURIComponent(places[currentIdx] + ', Sri Lanka') 
   const dest   = encodeURIComponent(places[places.length - 1] + ', Sri Lanka')
   const remainingPlaces = places.slice(currentIdx + 1, -1)
   const wps    = remainingPlaces.length > 0 ? remainingPlaces.map(p => encodeURIComponent(p + ', Sri Lanka')).join('|') : ''
@@ -31,27 +32,30 @@ const buildNavUrl = (from, to) => {
 }
 
 export default function TripActivePage({ trip, onBack, onComplete }) {
-  const { t } = useLanguage() // <-- Initialize Translation Function
+  const { t } = useLanguage() 
 
   const [currentIdx, setCurrentIdx]     = useState(trip.currentStopIndex || 0)
   const [view, setView]                 = useState('map')  // 'map' | 'list'
-  const [weatherData, setWeatherData]   = useState({})     // { placeName: weatherObj }
+  
+  // States for API Data
+  const [weatherData, setWeatherData]   = useState({})     
   const [loadingWx, setLoadingWx]       = useState({})
   const [showAlerts, setShowAlerts]     = useState({})
+  
+  // New States for Transit Options
+  const [transitOptions, setTransitOptions] = useState(null)
+  const [loadingTransit, setLoadingTransit] = useState(false)
+  const [activeTransitTab, setActiveTransitTab] = useState('car')
+  
   const [saving, setSaving]             = useState(false)
 
   const stops = trip.optimizedOrder || []
+  const currentPlace  = stops[currentIdx]
+  const nextPlace     = stops[currentIdx + 1]
 
-  // Fetch weather for current and next stop
-  useEffect(() => {
-    fetchWeatherForStop(stops[currentIdx])
-    if (currentIdx < stops.length - 1) {
-      fetchWeatherForStop(stops[currentIdx + 1])
-    }
-  }, [currentIdx])
-
+  // 1. Weather Fetcher using updated ../api
   const fetchWeatherForStop = useCallback(async (place) => {
-    if (!place || weatherData[place]) return
+    if (!place || weatherData[place] || loadingWx[place]) return
     setLoadingWx(prev => ({ ...prev, [place]: true }))
     try {
       const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(place + ', Sri Lanka')}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`
@@ -60,13 +64,11 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
 
       if (geoData.status === 'OK' && geoData.results[0]) {
         const { lat, lng } = geoData.results[0].geometry.location
-        const wxRes = await fetch('/api/weather', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat, lng, city: place.split(',')[0], locationName: place, locationType: 'tourist_attraction' })
-        })
-        const wx = await wxRes.json()
-        if (wx.success) {
+        
+        // Use standard API function
+        const wx = await getWeather({ lat, lng, city: place.split(',')[0], locationName: place, locationType: 'tourist_attraction' })
+        
+        if (wx && wx.success) {
           setWeatherData(prev => ({ ...prev, [place]: wx }))
           if (wx.rerouteSuggested) {
             setShowAlerts(prev => ({ ...prev, [place]: true }))
@@ -78,15 +80,48 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
     } finally {
       setLoadingWx(prev => ({ ...prev, [place]: false }))
     }
-  }, [weatherData])
+  }, [weatherData, loadingWx])
+
+  // 2. Transit Options Fetcher
+  const fetchTransitOptions = useCallback(async (from, to) => {
+    if (!from || !to) return
+    setLoadingTransit(true)
+    try {
+      const res = await getItinerary([from, to], "08:00")
+      if (res && res.stepByStep && res.stepByStep.length > 0) {
+        setTransitOptions(res.stepByStep[0].options)
+      } else {
+        setTransitOptions(null)
+      }
+    } catch (error) {
+      console.log('Transit fetch failed', error)
+      setTransitOptions(null)
+    } finally {
+      setLoadingTransit(false)
+    }
+  }, [])
+
+  // 3. Centralized Loading Logic
+  useEffect(() => {
+    const loadRequiredData = async () => {
+      await fetchWeatherForStop(currentPlace)
+      if (nextPlace) {
+        Promise.all([
+          fetchWeatherForStop(nextPlace),
+          fetchTransitOptions(currentPlace, nextPlace)
+        ]).catch(e => console.log("Failed to load next stop data", e))
+      } else {
+        setTransitOptions(null)
+      }
+    }
+    loadRequiredData()
+  }, [currentIdx])
 
   const handleNextStop = async () => {
     if (currentIdx >= stops.length - 1) return
     const newIdx = currentIdx + 1
     setCurrentIdx(newIdx)
-    try {
-      await updateTripStatus(trip._id, 'active', newIdx)
-    } catch {}
+    try { await updateTripStatus(trip._id, 'active', newIdx) } catch {}
   }
 
   const handleComplete = async () => {
@@ -98,11 +133,9 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
     setSaving(false)
   }
 
-  const currentPlace  = stops[currentIdx]
-  const nextPlace     = stops[currentIdx + 1]
-  const currentWx     = weatherData[currentPlace]
-  const isLastStop    = currentIdx === stops.length - 1
-  const progress      = stops.length > 1 ? (currentIdx / (stops.length - 1)) * 100 : 100
+  const currentWx    = weatherData[currentPlace]
+  const isLastStop   = currentIdx === stops.length - 1
+  const progress     = stops.length > 1 ? (currentIdx / (stops.length - 1)) * 100 : 100
 
   return (
     <div className="min-h-screen dot-grid pb-28 animate-fade-in">
@@ -293,7 +326,6 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
                 const wx = weatherData[place]
                 const isPast    = idx < currentIdx
                 const isCurrent = idx === currentIdx
-                const isFuture  = idx > currentIdx
 
                 return (
                   <div
@@ -303,7 +335,6 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
                                  isPast ? 'bg-black/20 border-white/5 opacity-50' :
                                  'bg-white/5 border-white/10'}`}
                   >
-                    {/* Number/Check */}
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0
                                     ${isCurrent ? 'bg-lanka-500 text-white shadow-lg' :
                                       isPast ? 'bg-forest-500/60 text-white' :
@@ -311,7 +342,6 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
                       {isPast ? <Check size={14} /> : idx + 1}
                     </div>
 
-                    {/* Place */}
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-semibold truncate ${isCurrent ? 'text-white' : 'text-white/70'}`}>
                         {place.split(',')[0]}
@@ -319,7 +349,6 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
                       {isCurrent && <p className="text-lanka-400 text-[10px] uppercase tracking-widest font-bold mt-0.5">{t('activeTrip.youAreHere')}</p>}
                     </div>
 
-                    {/* Weather badge */}
                     {wx && (
                       <div className="flex items-center gap-1.5 text-xs text-white/60 font-medium shrink-0 bg-black/20 px-2.5 py-1 rounded-lg border border-white/5">
                         <span className="text-lg leading-none">{getWeatherIcon(wx.weather.condition)}</span>
@@ -335,7 +364,7 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
           </div>
         )}
 
-        {/* ── NEXT STOP PREVIEW ──────────────────────────────── */}
+        {/* ── NEXT STOP & TRANSIT PREVIEW ──────────────────────────────── */}
         {nextPlace && (
           <div className="card-dark p-5 border-l-4 border-l-ocean-500 bg-ocean-500/5">
             <p className="text-ocean-400 text-[10px] font-bold uppercase tracking-widest mb-3">{t('activeTrip.nextStopTitle')}</p>
@@ -355,6 +384,52 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
               </div>
               {loadingWx[nextPlace] && <Loader2 size={18} className="text-white/20 animate-spin" />}
             </div>
+
+            {/* Added Transit Options Block */}
+            {loadingTransit ? (
+              <div className="mt-5 pt-5 border-t border-ocean-500/10 flex justify-center p-2">
+                 <Loader2 size={18} className="animate-spin text-ocean-400" />
+              </div>
+            ) : transitOptions && (
+              <div className="mt-5 pt-5 border-t border-ocean-500/10 animate-fade-in">
+                <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-3">{t('itinerary.howToGetThere', 'HOW TO GET THERE')}</p>
+                
+                {/* Transit Tabs */}
+                <div className="flex bg-black/30 p-1.5 rounded-xl mb-3 border border-white/5">
+                  {[
+                    { key: 'car', icon: Car, label: t('itinerary.driving', 'Drive'), color: 'text-forest-400', bg: 'bg-forest-500/20' },
+                    { key: 'train', icon: Train, label: t('itinerary.trainSchedules', 'Train'), color: 'text-ocean-400', bg: 'bg-ocean-500/20' },
+                    { key: 'bus', icon: Bus, label: t('itinerary.busRoutes', 'Bus'), color: 'text-lanka-400', bg: 'bg-lanka-500/20' },
+                  ].map(({ key, icon: Icon, label, color, bg }) => {
+                    const isAvailable = transitOptions[key]?.summary !== 'Not available';
+                    const isActive = activeTransitTab === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setActiveTransitTab(key)}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-lg transition-all relative ${isActive ? `${bg} ${color}` : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+                      >
+                        <Icon size={14} /> {label}
+                        {!isAvailable && !isActive && <div className="absolute top-2 right-3 w-1.5 h-1.5 rounded-full bg-red-500/80" />}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Transit Content Summary */}
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 shadow-inner">
+                  {transitOptions[activeTransitTab]?.summary !== 'Not available' ? (
+                    <p className="text-white/80 text-xs leading-relaxed">
+                      {transitOptions[activeTransitTab]?.summary}
+                    </p>
+                  ) : (
+                    <p className="text-red-400/80 text-xs flex items-center gap-2">
+                      <AlertTriangle size={14} /> {t('itinerary.notAvailable', 'Not available for this route.')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -362,11 +437,20 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
       {/* ── BOTTOM NAV BAR ─────────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0B0F19]/90 backdrop-blur-2xl border-t border-white/10 pb-safe">
         <div className="max-w-3xl mx-auto px-4 py-4 flex gap-3">
-          {/* Check weather again */}
+          {/* Enhanced Refresh Logic to re-fetch Weather AND Transit options */}
           <button
             onClick={() => {
-              setWeatherData(prev => { const n = {...prev}; delete n[currentPlace]; return n })
+              setWeatherData(prev => { 
+                const n = {...prev}
+                delete n[currentPlace]
+                if(nextPlace) delete n[nextPlace]
+                return n 
+              })
               fetchWeatherForStop(currentPlace)
+              if (nextPlace) {
+                fetchWeatherForStop(nextPlace)
+                fetchTransitOptions(currentPlace, nextPlace)
+              }
             }}
             className="w-14 h-14 flex items-center justify-center rounded-2xl border border-white/10 bg-white/5
                        text-white/60 hover:text-white hover:bg-white/10 transition-all shadow-inner"
@@ -401,3 +485,4 @@ export default function TripActivePage({ trip, onBack, onComplete }) {
     </div>
   )
 }
+

@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import {
   MapPin, Plus, Calendar, Clock, Route, Trash2,
   Play, Loader2, AlertCircle, ChevronRight, Navigation,
-  LayoutDashboard, LogOut, Globe
+  LayoutDashboard, LogOut, Globe, User
 } from 'lucide-react'
 import { getMyTrips, deleteTrip } from '../api'
-import { useLanguage } from '../context/LanguageContext' // <-- Import Language Hook
+import { useLanguage } from '../context/LanguageContext' 
 
-export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout }) {
-  const { t, language, toggleLanguage } = useLanguage(); // <-- Initialize Language Hook
+export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout, onProfile }) { 
+  const { t, language, toggleLanguage } = useLanguage(); 
   
   const [trips, setTrips]     = useState([])
   const [loading, setLoading] = useState(true)
@@ -32,7 +32,6 @@ export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout }
 
   const handleDelete = async (id, e) => {
     e.stopPropagation()
-    // සරලව window confirm එකක්
     const confirmMsg = language === 'si' ? 'මෙම ගමන මකා දැමීමට අවශ්‍යද?' : 'Are you sure you want to delete this trip?'
     if (!window.confirm(confirmMsg)) return
     
@@ -80,9 +79,10 @@ export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout }
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-ocean-500/10 rounded-full blur-[100px]" />
       </div>
 
-      {/* Navbar (Dashboard Specific) */}
+      {/* ── Dashboard Navbar (Main Navbar එකේ UI එකටම සමානයි) ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0B0F19]/80 backdrop-blur-2xl transition-all duration-300">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+          
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-lanka-400 to-lanka-600 shadow-lg shadow-lanka-500/20 flex items-center justify-center">
               <Navigation size={18} className="text-white" />
@@ -94,7 +94,8 @@ export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout }
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            
             {/* Language Toggle */}
             <button 
               onClick={toggleLanguage}
@@ -104,17 +105,24 @@ export default function DashboardPage({ user, onNewTrip, onStartTrip, onLogout }
               {t('nav.langToggle')}
             </button>
 
-            <div className="hidden sm:block text-right border-l border-white/10 pl-4">
-              <p className="text-white text-sm font-medium">{user?.name}</p>
-              <p className="text-white/40 text-[10px]">{user?.email}</p>
-            </div>
+            {/* Profile Button (Clickable Avatar) */}
+            <button
+              onClick={onProfile}
+              title="Profile & Settings"
+              className="w-8 h-8 rounded-full bg-lanka-500/30 border border-lanka-500/40 flex items-center justify-center text-lanka-300 text-xs font-bold hover:bg-lanka-500/50 hover:text-white hover:shadow-[0_0_10px_rgba(245,158,11,0.3)] transition-all cursor-pointer"
+            >
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </button>
+            
+            {/* Logout Button */}
             <button
               onClick={onLogout}
-              className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
               title={t('nav.logout')}
             >
-              <LogOut size={16} />
+              <LogOut size={14} />
             </button>
+            
           </div>
         </div>
       </nav>

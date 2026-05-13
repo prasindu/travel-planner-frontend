@@ -8,7 +8,8 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import TripActivePage from './pages/TripActivePage'
 import SaveTripModal from './components/SaveTripModal'
-import { LanguageProvider } from './context/LanguageContext' // <-- Import Language Provider
+import ProfilePage from './pages/ProfilePage' 
+import { LanguageProvider } from './context/LanguageContext' 
 
 export default function App() {
   // ── Auth State ─────────────────────────────────────────────
@@ -17,7 +18,7 @@ export default function App() {
   })
 
   // ── App View ──────────────────────────────────────────────
-  // 'login' | 'dashboard' | 'planner' | 'active-trip'
+  // 'login' | 'dashboard' | 'planner' | 'active-trip' | 'profile'
   const [view, setView]         = useState(() => {
     const token = localStorage.getItem('lt_token')
     return token ? 'dashboard' : 'login'
@@ -95,9 +96,20 @@ export default function App() {
         onNewTrip={handleNewTrip}
         onStartTrip={handleStartTrip}
         onLogout={handleLogout}
+        onProfile={() => setView('profile')} 
       />
     )
   } 
+  
+  else if (view === 'profile') {
+    currentView = (
+      <ProfilePage
+        user={user}
+        onBack={() => setView('dashboard')}
+        onLogout={handleLogout}
+      />
+    )
+  }
   else {
     // PLANNER FLOW (Search -> Plan -> Optimize -> Itinerary)
     currentView = (
@@ -106,6 +118,7 @@ export default function App() {
           currentStep={step}
           user={user}
           onDashboard={() => setView('dashboard')}
+          onProfile={() => setView('profile')} //
           onLogout={handleLogout}
         />
 
