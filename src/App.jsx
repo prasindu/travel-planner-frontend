@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
+import HomePage from './pages/HomePage'
 import SearchPage from './pages/SearchPage'
 import PlanPage from './pages/PlanPage'
 import OptimizePage from './pages/OptimizePage'
@@ -19,10 +20,10 @@ export default function App() {
   })
 
   // ── App View ──────────────────────────────────────────────
-  // 'login' | 'dashboard' | 'planner' | 'active-trip' | 'profile'
+  // 'home' | 'login' | 'dashboard' | 'planner' | 'active-trip' | 'profile'
   const [view, setView]         = useState(() => {
     const token = localStorage.getItem('lt_token')
-    return token ? 'dashboard' : 'login'
+    return token ? 'dashboard' : 'home'
   })
 
   // ── Active Trip ────────────────────────────────────────────
@@ -49,7 +50,7 @@ export default function App() {
     localStorage.removeItem('lt_token')
     localStorage.removeItem('lt_user')
     setUser(null)
-    setView('login')
+    setView('home')
   }
 
   // ── New Trip: reset state and go to planner ────────────────
@@ -78,7 +79,10 @@ export default function App() {
   // ── View Rendering Logic ───────────────────────────────────
   let currentView;
 
-  if (view === 'login') {
+  if (view === 'home') {
+    currentView = <HomePage onGetStarted={() => setView('login')} />
+  }
+  else if (view === 'login') {
     currentView = <LoginPage onAuthSuccess={handleAuthSuccess} />
   } 
   else if (view === 'active-trip' && activeTrip) {
@@ -196,7 +200,7 @@ export default function App() {
       {currentView}
       
       {}
-      {view !== 'login' && <AIChatWidget />}
+      {view !== 'home' && view !== 'login' && <AIChatWidget />}
     </LanguageProvider>
   )
 }

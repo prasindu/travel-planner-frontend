@@ -13,6 +13,90 @@ export const translations = {
         itinerary: "Itinerary"
       }
     },
+    home: {
+      nav: {
+        cta: "Get started"
+      },
+      hero: {
+        eyebrow: "Sri Lanka, mapped stop by stop",
+        title1: "Every stop planned.",
+        title2: "Every route optimal.",
+        subtitle: "Pick the places you want to see across Sri Lanka. Lanka Trails orders them into the shortest route, gets you bus, train or car directions for each leg, and swaps in an indoor stop the moment the weather turns.",
+        ctaPrimary: "Plan your trip",
+        ctaSecondary: "See how it works",
+        trust1: "Free to plan",
+        trust2: "Google-grade routing",
+        trust3: "Live weather checks"
+      },
+      ticket: {
+        route: "Route No.",
+        distance: "Distance",
+        stops: "Stops",
+        optimal: "Optimal",
+        gate: "Alert",
+        rain: "Rain · Ella",
+        swap: "Indoor swap ready"
+      },
+      how: {
+        eyebrow: "Boarding sequence",
+        title1: "How it",
+        title2: "works",
+        subtitle: "Four steps from an idea to a trip you can actually follow."
+      },
+      steps: {
+        search: {
+          title: "Search your places",
+          body: "Look up a city or a specific attraction and see the top matches — ratings, photos and opening hours included."
+        },
+        plan: {
+          title: "Build your stop list",
+          body: "Add places from as many searches as you like, then reorder them into the trip you actually want."
+        },
+        optimize: {
+          title: "Optimize the route",
+          body: "One tap reorders every stop into the shortest possible journey, with or without a fixed finish line."
+        },
+        go: {
+          title: "Start and stay guided",
+          body: "Get bus, train and driving directions for every leg, live weather checks, and indoor backups if the sky turns on you."
+        }
+      },
+      features: {
+        eyebrow: "Stamped on arrival",
+        title1: "Built for",
+        title2: "real trips",
+        subtitle: "Every feature exists because a trip in Sri Lanka actually needs it.",
+        search: {
+          title: "Destination search",
+          body: "Top attractions for any city or place, pulled straight from Google Places."
+        },
+        optimize: {
+          title: "Route optimization",
+          body: "Your stops, reordered into the shortest path — round trip or fixed destination."
+        },
+        transit: {
+          title: "Bus, train & car",
+          body: "Real route numbers, station timings and driving directions for every leg of the journey."
+        },
+        weather: {
+          title: "Weather-aware rerouting",
+          body: "Rain at an outdoor stop? Get nearby indoor alternatives automatically."
+        },
+        live: {
+          title: "Live trip tracking",
+          body: "Start your trip and get notified as you move from one stop to the next."
+        },
+        ai: {
+          title: "AI trip assistant",
+          body: "Describe the vibe you want and let the assistant suggest places to add."
+        }
+      },
+      cta: {
+        title: "Your route to Sri Lanka starts here.",
+        subtitle: "Search a few places, and let the route build itself.",
+        button: "Start planning free"
+      }
+    },
     auth: {
       loginTitle: "Login",
       registerTitle: "Register",
@@ -184,6 +268,90 @@ profile: {
         plan: "සැලසුම්",
         optimize: "ප්‍රශස්ත",
         itinerary: "ගමන් විස්තරය"
+      }
+    },
+    home: {
+      nav: {
+        cta: "පටන් ගමු"
+      },
+      hero: {
+        eyebrow: "ශ්‍රී ලංකාව, එක එක ස්ථානයෙන් සිතියම් ගත කෙරේ",
+        title1: "සෑම නැවතුමක්ම සැලසුම් සහගතයි.",
+        title2: "සෑම මාර්ගයක්ම ප්‍රශස්තයි.",
+        subtitle: "ශ්‍රී ලංකාව පුරා ඔබ බලන්න ඕන ස්ථාන තෝරන්න. Lanka Trails ඒවා කෙටිම මාර්ගයට සකසලා, සෑම කොටසකටම බස්, දුම්රිය හෝ වාහන directions ලබාදෙනවා, කාලගුණය නරක උනොත් ගෘහස්ථ විකල්පයක්ම ලබාදෙනවා.",
+        ctaPrimary: "ඔබේ ගමන සැලසුම් කරන්න",
+        ctaSecondary: "මෙය ක්‍රියා කරන ආකාරය බලන්න",
+        trust1: "සැලසුම් කිරීම නොමිලේ",
+        trust2: "Google-grade routing",
+        trust3: "සජීවී කාලගුණ පරීක්ෂාව"
+      },
+      ticket: {
+        route: "මාර්ග අංකය",
+        distance: "දුර",
+        stops: "නැවතුම්",
+        optimal: "ප්‍රශස්තයි",
+        gate: "අනතුරු ඇඟවීම",
+        rain: "වර්ෂාව · Ella",
+        swap: "ගෘහස්ථ විකල්පය සූදානම්"
+      },
+      how: {
+        eyebrow: "ගමන් පිළිවෙල",
+        title1: "මෙය",
+        title2: "ක්‍රියා කරන ආකාරය",
+        subtitle: "අදහසේ සිට අනුගමනය කළ හැකි ගමනක් දක්වා පියවර හතරක්."
+      },
+      steps: {
+        search: {
+          title: "ඔබේ ස්ථාන සොයන්න",
+          body: "නගරයක් හෝ නිශ්චිත ස්ථානයක් සොයන්න, hොඳම ප්‍රතිඵල — rating, photos සහ open hours සමඟ."
+        },
+        plan: {
+          title: "ඔබේ නැවතුම් ලැයිස්තුව සාදන්න",
+          body: "ඔබට ඕන තරම් search කරලා ස්ථාන එකතු කරන්න, පසුව ඒවා ඔබට ඕන ගමනට reorder කරගන්න."
+        },
+        optimize: {
+          title: "මාර්ගය Optimize කරන්න",
+          body: "එක tap එකකින් සෑම නැවතුමක්ම කෙටිම ගමනට reorder වෙනවා, fixed finish location එකක් සමඟ හෝ නැතුව."
+        },
+        go: {
+          title: "ආරම්භ කර මාර්ගෝපදේශය ලබාගන්න",
+          body: "සෑම කොටසකටම බස්, දුම්රිය සහ වාහන directions, සජීවී කාලගුණ පරීක්ෂා, කාලගුණය නරක උනොත් ගෘහස්ථ විකල්ප."
+        }
+      },
+      features: {
+        eyebrow: "පැමිණි විට මුද්‍රා තබන ලද",
+        title1: "සැබෑ ගමන් සඳහා",
+        title2: "නිර්මාණය කළා",
+        subtitle: "ශ්‍රී ලංකාවේ ගමනකට ඇත්තටම ඕන නිසා තමයි මේ features ඔක්කොම තියෙන්නේ.",
+        search: {
+          title: "ස්ථාන සෙවීම",
+          body: "ඕනෑම නගරයක හෝ ස්ථානයක top attractions, Google Places එකෙන් කෙළින්ම."
+        },
+        optimize: {
+          title: "Route Optimization",
+          body: "ඔබේ නැවතුම් කෙටිම මාර්ගයට reorder කෙරේ — round trip හෝ fixed destination."
+        },
+        transit: {
+          title: "බස්, දුම්රිය සහ වාහන",
+          body: "සැබෑ route numbers, station timings සහ driving directions සෑම ගමන් කොටසකටම."
+        },
+        weather: {
+          title: "කාලගුණය අනුව Rerouting",
+          body: "ගෘහස්ථ නොවන ස්ථානයක වර්ෂාවක්ද? ළඟම ගෘහස්ථ විකල්ප ස්වයංක්‍රීයව ලබාගන්න."
+        },
+        live: {
+          title: "සජීවී Trip Tracking",
+          body: "ඔබේ ගමන ආරම්භ කර, එක නැවතුමකින් තව නැවතුමකට යනකොට notifications ලබාගන්න."
+        },
+        ai: {
+          title: "AI ගමන් සහායක",
+          body: "ඔබට ඕන vibe එක විස්තර කරන්න, AI සහායක ඔබට ස්ථාන යෝජනා කරයි."
+        }
+      },
+      cta: {
+        title: "ශ්‍රී ලංකාවට ඔබේ මාර්ගය මෙතනින් පටන් ගනී.",
+        subtitle: "ස්ථාන කිහිපයක් search කරන්න, මාර්ගය ස්වයංක්‍රීයව හැදෙන්න දෙන්න.",
+        button: "නොමිලේ සැලසුම් කිරීම අරඹන්න"
       }
     },
     auth: {
